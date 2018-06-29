@@ -1,0 +1,23 @@
+{
+    "name": "fred/laravel-lib",
+    "description": "fred laravel library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "fred",
+            "email": "fred@iamlosing.me"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ford\\Escape\\": "src/Ford/Escape",
+            "Ford\\Fusion\\": "src/Ford/Fusion",
+            "Ford\\Focus\\": "src/Ford/Focus",
+            "Ford\\Fiesta\\": "src/Ford/Fiesta"
+        }
+    }   
+}
