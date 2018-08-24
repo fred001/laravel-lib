@@ -1,9 +1,17 @@
 <?php
    namespace Frd;
 
+/* 
+ *  实现机制:
+ *    1. 解析预定义命令， 拆分成  cmd, params, options 三部分
+ *    2. 解析时，先用 cmd 去匹配 输入， 若都满足，则认为是这个命令（所以长的命令应当放在前面）
+ *    3. 剩下部分 首先获取关键词赋值，再对剩下进行次序赋值
+ *    4. 最后检验命令必要的参数是否都存在，是则成功匹配，否则抛出异常，指示什么参数不满足
+ */
+
    class CommandLine
    {
-      protected $cmd_lines=[];
+      public $cmd_lines=[];
 
       function __construct($lines)
       {
@@ -77,7 +85,11 @@
             }
 
 
-            $cmd_lines[]=[$cmds,$params];
+            $cmd_lines[]=[
+                'cmd'=>$cmds,
+                'params'=>$params,
+                'options'=>[],
+            ];
 
          }
 
@@ -88,10 +100,12 @@
       {
          $cols=$this->split($string);
 
+         //print_r($cols);exit();
+
          foreach($this->cmd_lines as $line)
          {
-            $cmds=$line[0];
-            $params=$line[1];
+            $cmds=$line['cmd'];
+            $params=$line['params'];
 
             if(count($cols) >= count($cmds)  )
             {
@@ -102,14 +116,13 @@
                {
                   if($cmds[$i] != $cols[$i])
                   {
+                      echo 'ddd';
                      #print(cmds[i] == cols[i])
                      #print("False");
                      $match=False;
 
                      break;
                   }
-
-                  $i+=1;
                }
 
                if($match)
@@ -174,3 +187,10 @@
       }
    }
 
+   /*
+    *
+    * talk choose :role_id
+    * talk :role_id
+    * talk end   :role_id
+    * talk end  -v  :role_id
+    */
