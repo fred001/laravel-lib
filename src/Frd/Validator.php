@@ -4,17 +4,10 @@
  * 实现一个非常简单的验证类
  *
  * 验证流程
- * 1. 获取所有值
- *      若请求为  name=  ，结果应该是 name=（空字符串） 而不能是 name=null
+ * 1. 获取所有值,通过allow_keys 过滤值
  * 2. 与默认值进行合并
- * //3. 将所有 null 转换成 '' , 并应用  trim
- *    并清除所有默认值
- *    因为默认值另外的作用是定义可以接受哪些参数，所以必须设定
- *    那么只能令值为null时候， 排除没有传入的参数
- *    令值为其它值，表示该值有意义
- *
- * 4. 应用前置过滤规则
- * 5. 进行规则校验
+ * 3. 应用前置过滤规则
+ * 4. 进行规则校验
  *     required =  存在值，且不为  '' ,但是可以是   0
  *     int  必须为整数
  *     min:0  （整数用， 必须大于等于某数字）
@@ -126,7 +119,7 @@ class Validator
         }
     }
 
-    function valid($data,$params=[],$rules=[],$pre_filters=[],$messages=[],$attrs=[])
+    function valid($data,$allow_keys,$params=[],$rules=[],$pre_filters=[],$messages=[],$attrs=[])
     {
         $this->attrs=$attrs;
 
@@ -135,8 +128,17 @@ class Validator
             $this->messages[$name]=$messages;
         }
 
-        $data=array_merge($params,$data);
-        $data_keeps=[];
+        //
+        $filtered_data=[];
+        foreach($allow_keys as $key)
+        {
+            if(isset($data[$key]))
+            {
+                $filtered_data[$key]=$data[$key];
+            }
+        }
+
+        $data=array_merge($params,$filtered_data);
 
         foreach($pre_filters as $name=>$filter)
         {
@@ -153,20 +155,19 @@ class Validator
                 {
                     $data[$name]=intval($data[$name]);
                 }
-                else if($filter == "keep_empty" && isset($data[$name]))
-                {
-                    $data_keeps[$name]=$data[$name];
-                }
             }
         }
 
+        /*
+         这里是不需要的，因为原先没有allow_keys, 才导致必须排除某些参数的问题
         foreach($data as $k=>$v)
         {
-            if($v == false && !isset($data_keeps[$k])) 
+            if($v === null)
             {
                 unset($data[$k]);
             }
         }
+         */
 
 
         foreach($rules as $name=>$value)
